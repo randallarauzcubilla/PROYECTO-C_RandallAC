@@ -61,9 +61,6 @@
     <ClCompile Include="GeneradorCodigo.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Alertas.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
     <ClCompile Include="DiccionarioManual.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>

@@ -137,7 +137,6 @@
     <ClInclude Include="Resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Alertas.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="C_RandallAC.cpp" />
     <ClCompile Include="DiccionarioManual.cpp" />
