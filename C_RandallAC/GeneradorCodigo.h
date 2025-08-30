@@ -6,6 +6,7 @@ using namespace System::Collections::Generic;
 ref class GeneradorCodigo {
 private:
     List<String^>^ lineas;
+    bool Contiene(String^ texto);
 
 public:
     GeneradorCodigo();
