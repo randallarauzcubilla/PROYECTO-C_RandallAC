@@ -1,13 +1,12 @@
-#ifndef DICCIONARIO_MANUAL_H
-#define DICCIONARIO_MANUAL_H
+#pragma once
 
-const int MAX_ENTRADAS = 50;
+#define MAX_ENTRADAS 80
+#define MAX_PALABRA 80
+#define MAX_TRADUCCION 100
 
 struct EntradaDiccionario {
-    char palabraNatural[40];
-    char traduccionCpp[40];
+    char palabraNatural[MAX_PALABRA];
+    char traduccionCpp[MAX_TRADUCCION];
 };
 
 extern EntradaDiccionario diccionario[MAX_ENTRADAS];
-
-#endif
