@@ -1,15 +1,23 @@
-#pragma once
+#define MAX_LINEA 256
+struct NodoCodigo {
+    char linea[MAX_LINEA];
+    NodoCodigo* siguiente;
+};
 
-using namespace System;
-using namespace System::Collections::Generic;
-
-ref class GeneradorCodigo {
+class GeneradorCodigo {
 private:
-    List<String^>^ lineas;
-    bool Contiene(String^ texto);
+    NodoCodigo* cabeza;
+    NodoCodigo* cola;
+
+    bool contiene(const char* texto);
 
 public:
     GeneradorCodigo();
-    void Agregar(String^ instruccionCpp);
-    List<String^>^ Finalizar();
+    ~GeneradorCodigo();
+
+    void agregar(const char* instruccionCpp, bool indentar);
+    void finalizar();
+    void imprimirCodigo();  // útil para debug
+    void generarArchivo(const char* nombreArchivo);
+    void limpiar();
 };
