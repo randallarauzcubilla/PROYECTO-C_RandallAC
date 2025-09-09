@@ -1,40 +1,94 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "GeneradorCodigo.h"
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cstdio>
+#define _CRT_SECURE_NO_WARNINGS
 
-// Verifica si una línea ya existe en el código generado
-bool GeneradorCodigo::Contiene(String^ texto) {
-    for each (String ^ linea in lineas) {
-        if (linea->Contains(texto)) return true;
+GeneradorCodigo::GeneradorCodigo() : cabeza(nullptr), cola(nullptr) {
+    agregar("#include <iostream>", false);
+    agregar("using namespace std;", false);
+    agregar("int main() {", false);
+}
+
+GeneradorCodigo::~GeneradorCodigo() {
+    limpiar();
+}
+
+bool GeneradorCodigo::contiene(const char* texto) {
+    NodoCodigo* actual = cabeza;
+    while (actual != nullptr) {
+        if (strstr(actual->linea, texto) != nullptr)
+            return true;
+        actual = actual->siguiente;
     }
     return false;
 }
 
-// Constructor: inicializa el código base con encabezados y función main si no existen
-GeneradorCodigo::GeneradorCodigo() {
-    lineas = gcnew List<String^>();
+void GeneradorCodigo::agregar(const char* instruccionCpp, bool indentar) {
+    char lineaFinal[MAX_LINEA] = { 0 };
 
-    if (!Contiene("#include <iostream>"))
-        lineas->Add("#include <iostream>");
+    if (indentar) {
+        snprintf(lineaFinal, MAX_LINEA, "    %s", instruccionCpp);
+    }
+    else {
+        strncpy(lineaFinal, instruccionCpp, MAX_LINEA - 1);
+        lineaFinal[MAX_LINEA - 1] = '\0';
+    }
 
-    if (!Contiene("using namespace std;"))
-        lineas->Add("using namespace std;");
+    NodoCodigo* nuevoNodo = new NodoCodigo;
+    strncpy(nuevoNodo->linea, lineaFinal, MAX_LINEA - 1);
+    nuevoNodo->linea[MAX_LINEA - 1] = '\0';
+    nuevoNodo->siguiente = nullptr;
 
-    if (!Contiene("int main() {"))
-        lineas->Add("int main() {");
+    if (cabeza == nullptr) {
+        cabeza = nuevoNodo;
+        cola = nuevoNodo;
+    }
+    else {
+        cola->siguiente = nuevoNodo;
+        cola = nuevoNodo;
+    }
 }
 
-// Agrega una instrucción traducida al cuerpo del main
-void GeneradorCodigo::Agregar(String^ instruccionCpp) {
-    lineas->Add("    " + instruccionCpp);
+void GeneradorCodigo::finalizar() {
+    agregar("return 0;", true);
+    agregar("}",true);
 }
 
-// Finaliza el código agregando return y cierre de función si no existen
-List<String^>^ GeneradorCodigo::Finalizar() {
-    if (!Contiene("return 0;"))
-        lineas->Add("    return 0;");
 
-    if (!Contiene("}"))
-        lineas->Add("}");
+void GeneradorCodigo::imprimirCodigo() {
+    NodoCodigo* actual = cabeza;
+    while (actual != nullptr) {
+        std::cout << actual->linea << std::endl;
+        actual = actual->siguiente;
+    }
+}
 
-    return lineas;
+void GeneradorCodigo::generarArchivo(const char* nombreArchivo) {
+    std::ofstream archivo(nombreArchivo);
+    if (!archivo.is_open()) {
+        std::cerr << "No se pudo abrir archivo para escribir: " << nombreArchivo << std::endl;
+        return;
+    }
+
+    NodoCodigo* actual = cabeza;
+    while (actual != nullptr) {
+        archivo << actual->linea << std::endl;
+        actual = actual->siguiente;
+    }
+
+    archivo.close();
+}
+
+void GeneradorCodigo::limpiar() {
+    NodoCodigo* actual = cabeza;
+    while (actual != nullptr) {
+        NodoCodigo* siguiente = actual->siguiente;
+        delete actual;
+        actual = siguiente;
+    }
+    cabeza = nullptr;
+    cola = nullptr;
 }
