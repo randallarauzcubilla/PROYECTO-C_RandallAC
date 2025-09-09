@@ -1,0 +1,20 @@
+#include <iostream>
+using namespace std;
+int main() {
+    int edad;
+    bool activo;
+    char letra;
+    edad = 42;
+    activo = verdadero;
+    letra = 'a';
+    float temperatura;
+    temperatura = 25.5;
+    cout << temperatura << endl;
+    cout << edad << endl;
+    cout << letra << endl;
+    cout << activo << endl;
+    edad = edad + 5;
+    temperatura = temperatura * 2;
+    // fin del programa
+    return 0;
+    }
