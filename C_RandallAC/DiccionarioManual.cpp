@@ -2,87 +2,173 @@
 #include "DiccionarioManual.h"
 #include <cstring>
 
-EntradaDiccionario diccionario[MAX_ENTRADAS] = {
-    {"sumar", "+"},
-    {"restar", "-"},
-    {"multiplicar", "*"},
-    {"dividir", "/"},
-    {"calcular", "operacion"}, // Esto es genérico, usar en parser con lógica adicional
-    {"total", "nombre"},
-    { "entero", "int" },
-    { "entera", "int" },
+EntradaDiccionario* diccionario = nullptr;
 
-    {"crear", "crear"}, // solo para detección
-    {"declarar", "crear"},
-    {"variable", "nombre;"}, // se combina con tipo
-    {"entero", "int"},
-    {"decimal", "float"},
-    {"numero decimal", "float"},
-    {"texto", "char"}, // En C++ puro sin STL, se usa arreglo de chars
-    {"palabra", "char"},
-    {"cadena de texto", "char"},
-    {"caracter", "char"},
-    {"booleano", "bool"},
-    {"valor inicial", "variable = valor;"},
-    {"asignar valor", "variable = valor;"},
+void agregarEntrada(const char* traduccionCpp, const char* palabras[], int cantidad) {
+    EntradaDiccionario* nueva = new EntradaDiccionario;
+    strncpy(nueva->traduccionCpp, traduccionCpp, MAX_TRADUCCION);
+    nueva->traduccionCpp[MAX_TRADUCCION - 1] = '\0';
+    nueva->listaPalabras = nullptr;
+    nueva->siguiente = nullptr;
 
-    {"crear lista", "tipo nombre[];"},
-    {"crear arreglo", "tipo nombre[];"},
-    {"lista", "[]"}, // estructura
-    {"elementos", "n"}, // cantidad
-    {"recorrer la lista", "for"},  // Debe expandirse en parser
-    {"agregar a la lista", "// agregar elemento manualmente"}, // sin STL no hay push_back
+    NodoPalabra* anterior = nullptr;
+    for (int i = 0; i < cantidad; ++i) {
+        NodoPalabra* nodo = new NodoPalabra;
+        strncpy(nodo->palabraNatural, palabras[i], MAX_PALABRA);
+        nodo->palabraNatural[MAX_PALABRA - 1] = '\0';
+        nodo->siguiente = nullptr;
 
-    {"si", "if"},
-    {"sino", "else"},
-    {"mientras", "while"},
-    {"repetir hasta", "do { } while(...)"},
-    {"para", "for"},
+        if (anterior == nullptr) {
+            nueva->listaPalabras = nodo;
+        }
+        else {
+            anterior->siguiente = nodo;
+        }
+        anterior = nodo;
+    }
 
-    {"condicion", "expresion booleana"},
-    {"igual a", "=="},
-    {"diferente de", "!="},
-    {"mayor que", ">"},
-    {"menor que", "<"},
-    {"y", "&&"},
-    {"o", "||"},
+    if (diccionario == nullptr) {
+        diccionario = nueva;
+    }
+    else {
+        EntradaDiccionario* actual = diccionario;
+        while (actual->siguiente != nullptr) {
+            actual = actual->siguiente;
+        }
+        actual->siguiente = nueva;
+    }
+}
 
-    {"mostrar", "cout <<"},
-    {"imprimir", "cout <<"},
-    {"leer", "cin >>"},
-    {"ingresar valor", "cin >>"},
-    {"mensaje", "\"texto\""},
+const char* buscarTraduccion(const char* palabra) {
+    EntradaDiccionario* actual = diccionario;
+    while (actual != nullptr) {
+        NodoPalabra* nodo = actual->listaPalabras;
+        while (nodo != nullptr) {
+            if (strcmp(nodo->palabraNatural, palabra) == 0) {
+                return actual->traduccionCpp;
+            }
+            nodo = nodo->siguiente;
+        }
+        actual = actual->siguiente;
+    }
+    return nullptr;
+}
 
-    {"comenzar programa", "int main() {"},
-    {"terminar programa", "return 0; }"},
-    {"fin", "return 0; }"},
-    {"comentario", "// comentario"},
-    {"definir funcion", "tipo nombreFuncion(...)"},
-    {"llamar funcion", "nombreFuncion();"},
+void liberarDiccionario() {
+    EntradaDiccionario* actual = diccionario;
+    while (actual != nullptr) {
+        NodoPalabra* nodo = actual->listaPalabras;
+        while (nodo != nullptr) {
+            NodoPalabra* temp = nodo;
+            nodo = nodo->siguiente;
+            delete temp;
+        }
+        EntradaDiccionario* tempEntrada = actual;
+        actual = actual->siguiente;
+        delete tempEntrada;
+    }
+    diccionario = nullptr;
+}
 
-{ "definir variable", "crear" },
-{ "inicializar variable", "crear" },
-{ "establecer variable", "crear" },
-{ "crear una variable", "crear" },
+void inicializarDiccionario() {
+    // Operaciones
+    const char* opSuma[] = { "sumar", "añadir", "agregar" };
+    agregarEntrada("+", opSuma, 3);
 
-{ "numero", "int" },
-{ "string", "char" },
-{ "boolean", "bool" },
+    const char* opResta[] = { "restar", "quitar" };
+    agregarEntrada("-", opResta, 2);
 
-{ "es igual a", "==" },
-{ "es diferente de", "!=" },
-{ "mayor o igual que", ">=" },
-{ "menor o igual que", "<=" },
+    const char* opMult[] = { "multiplicar", "por" };
+    agregarEntrada("*", opMult, 2);
 
-{ "escribir", "cout <<" },
-{ "mostrar mensaje", "cout <<" },
-{ "leer valor", "cin >>" },
-{ "capturar", "cin >>" },
+    const char* opDiv[] = { "dividir", "entre" };
+    agregarEntrada("/", opDiv, 2);
 
-{ "si no", "else" },
-{ "mientras que", "while" },
-{ "repetir", "do { } while(...)" },
+    // Tipos de datos
+    const char* tipoInt[] = { "entero", "entera", "numero" };
+    agregarEntrada("int", tipoInt, 3);
 
-{ "finalizar", "return 0; }" },
-{ "cerrar programa", "return 0; }" }
-};
+    const char* tipoFloat[] = { "decimal", "numero decimal" };
+    agregarEntrada("float", tipoFloat, 2);
+
+    const char* tipoChar[] = { "caracter", "letra", "texto", "cadena de texto" };
+    agregarEntrada("char", tipoChar, 4);
+
+    const char* tipoBool[] = { "booleano", "boolean", "bool", "verdadero", "falso" };
+    agregarEntrada("bool", tipoBool, 5);
+
+    // Declaración
+    const char* declarar[] = { "crear", "declarar", "definir variable", "crear una variable" };
+    agregarEntrada("crear", declarar, 4);
+
+    // Asignación
+    const char* asignar[] = { "asignar", "establecer", "igualar" };
+    agregarEntrada("=", asignar, 3);
+
+    // Entrada/Salida
+    const char* mostrar[] = { "mostrar", "imprimir", "escribir", "mostrar mensaje" };
+    agregarEntrada("cout <<", mostrar, 4);
+
+    const char* leer[] = { "leer", "capturar", "ingresar valor", "leer valor" };
+    agregarEntrada("cin >>", leer, 4);
+
+    // Comentarios
+    const char* comentario[] = { "agrega un comentario que diga", "comentario" };
+    agregarEntrada("//", comentario, 2);
+
+    // Condicionales
+    const char* condSi[] = { "si", "en caso que" };
+    agregarEntrada("if", condSi, 2);
+
+    const char* condSino[] = { "sino", "si no" };
+    agregarEntrada("else", condSino, 2);
+
+    const char* mayor[] = { "mayor que", "es mayor que" };
+    agregarEntrada(">", mayor, 2);
+
+    const char* menor[] = { "menor que", "es menor que" };
+    agregarEntrada("<", menor, 2);
+
+    const char* igual[] = { "igual a", "es igual a" };
+    agregarEntrada("==", igual, 2);
+
+    const char* diferente[] = { "diferente de", "es diferente de" };
+    agregarEntrada("!=", diferente, 2);
+
+    const char* mayorIgual[] = { "mayor o igual que" };
+    agregarEntrada(">=", mayorIgual, 1);
+
+    const char* menorIgual[] = { "menor o igual que" };
+    agregarEntrada("<=", menorIgual, 1);
+
+    const char* logicoY[] = { "y", "además" };
+    agregarEntrada("&&", logicoY, 2);
+
+    const char* logicoO[] = { "o", "o bien" };
+    agregarEntrada("||", logicoO, 2);
+
+    // Bucles
+    const char* bucleMientras[] = { "mientras", "mientras que" };
+    agregarEntrada("while", bucleMientras, 2);
+
+    const char* bucleRepetir[] = { "repetir", "repetir hasta" };
+    agregarEntrada("do { } while(...)", bucleRepetir, 2);
+
+    const char* buclePara[] = { "para", "repetir n veces" };
+    agregarEntrada("for", buclePara, 2);
+
+    // Funciones
+    const char* funcionDefinir[] = { "definir funcion", "crear funcion" };
+    agregarEntrada("void nombreFuncion() {", funcionDefinir, 2);
+
+    const char* funcionLlamar[] = { "llamar funcion", "ejecutar funcion" };
+    agregarEntrada("nombreFuncion();", funcionLlamar, 2);
+
+    // Finalización
+    const char* finalizar[] = { "terminar programa", "finalizar", "cerrar programa", "fin" };
+    agregarEntrada("return 0; }", finalizar, 4);
+
+    // Inicio
+    const char* iniciar[] = { "comenzar programa", "inicio" };
+    agregarEntrada("int main() {", iniciar, 2);
+}

@@ -1,12 +1,26 @@
 #pragma once
 
-#define MAX_ENTRADAS 80
 #define MAX_PALABRA 80
 #define MAX_TRADUCCION 100
 
-struct EntradaDiccionario {
+// Nodo de palabra natural (lista interna)
+struct NodoPalabra {
     char palabraNatural[MAX_PALABRA];
-    char traduccionCpp[MAX_TRADUCCION];
+    NodoPalabra* siguiente;
 };
 
-extern EntradaDiccionario diccionario[MAX_ENTRADAS];
+// Entrada del diccionario (lista principal)
+struct EntradaDiccionario {
+    char traduccionCpp[MAX_TRADUCCION];
+    NodoPalabra* listaPalabras;
+    EntradaDiccionario* siguiente;
+};
+
+// Diccionario principal
+extern EntradaDiccionario* diccionario;
+
+// Funciones públicas
+void agregarEntrada(const char* traduccionCpp, const char* palabras[], int cantidad);
+const char* buscarTraduccion(const char* palabra);
+void inicializarDiccionario();
+void liberarDiccionario();
