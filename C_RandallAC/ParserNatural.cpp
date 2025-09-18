@@ -49,17 +49,23 @@ void ParserNatural::parseLinea(const char* lineaEntrada, char* lineaSalida) {
     convertirMinusculas(lineaSemantica);
 
     // Reemplazar solo palabras clave semánticas (no estructurales)
-    for (int i = 0; i < MAX_ENTRADAS; ++i) {
-        const char* trad = diccionario[i].traduccionCpp;
+    EntradaDiccionario* actual = diccionario;
+    while (actual != nullptr) {
+        const char* trad = actual->traduccionCpp;
 
-        // Solo reemplazar si la traducción es una palabra clave semántica
         if (strcmp(trad, "crear") == 0 || strcmp(trad, "int") == 0 ||
             strcmp(trad, "float") == 0 || strcmp(trad, "char") == 0 ||
             strcmp(trad, "bool") == 0) {
-            while (contienePalabra(lineaSemantica, diccionario[i].palabraNatural)) {
-                reemplazarPalabra(lineaSemantica, diccionario[i].palabraNatural, trad);
+
+            NodoPalabra* nodo = actual->listaPalabras;
+            while (nodo != nullptr) {
+                while (contienePalabra(lineaSemantica, nodo->palabraNatural)) {
+                    reemplazarPalabra(lineaSemantica, nodo->palabraNatural, trad);
+                }
+                nodo = nodo->siguiente;
             }
         }
+        actual = actual->siguiente;
     }
 
     //  Declaración: "crear variable float temperatura"
@@ -165,6 +171,53 @@ void ParserNatural::parseLinea(const char* lineaEntrada, char* lineaSalida) {
         snprintf(lineaSalida, MAX_LINEA, "// %s", texto);
         return;
     }
+
+    if (strstr(lineaSemantica, "si") && strstr(lineaSemantica, "mostrar")) {
+        char variable[MAX_NOMBRE] = { 0 };
+        char operador[MAX_VALOR] = { 0 };
+        char valor[MAX_VALOR] = { 0 };
+        char accion[MAX_NOMBRE] = { 0 };
+
+        sscanf_s(lineaSemantica, "si %49s es %49s %49s mostrar %49s",
+            variable, (unsigned)_countof(variable),
+            operador, (unsigned)_countof(operador),
+            valor, (unsigned)_countof(valor),
+            accion, (unsigned)_countof(accion));
+
+        const char* opCpp = buscarTraduccion(operador);
+        if (!opCpp) opCpp = operador;
+
+        snprintf(lineaSalida, MAX_LINEA,
+            "if (%s %s %s) {\n    cout << %s << endl;\n}",
+            variable, opCpp, valor, accion);
+        return;
+    }
+
+    if (strstr(lineaSemantica, "repetir") && strstr(lineaSemantica, "veces")) {
+        int veces = 0;
+        char accion[MAX_NOMBRE] = { 0 };
+
+        sscanf_s(lineaSemantica, "repetir %d veces mostrar %49s",
+            &veces, accion, (unsigned)_countof(accion));
+
+        snprintf(lineaSalida, MAX_LINEA,
+            "for (int i = 0; i < %d; i++) {\n    cout << %s << endl;\n}",
+            veces, accion);
+        return;
+    }
+
+    if (strstr(lineaSemantica, "definir funcion llamada")) {
+        char nombre[MAX_NOMBRE] = { 0 };
+        const char* p = strstr(lineaSemantica, "llamada ");
+        if (p) {
+            p += strlen("llamada ");
+            sscanf_s(p, "%49s", nombre, (unsigned)_countof(nombre));
+            snprintf(lineaSalida, MAX_LINEA,
+                "void %s() {\n    // cuerpo de la función\n}", nombre);
+            return;
+        }
+    }
+
     // Si no reconoce la instrucción
     snprintf(lineaSalida, MAX_LINEA, "// Instrucción no reconocida: %s", lineaEntrada);
 }
