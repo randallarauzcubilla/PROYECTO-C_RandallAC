@@ -92,3 +92,11 @@ void GeneradorCodigo::limpiar() {
     cabeza = nullptr;
     cola = nullptr;
 }
+
+void GeneradorCodigo::agregarFueraMain(const char* instruccionCpp) {
+    NodoCodigo* nuevoNodo = new NodoCodigo;
+    strncpy(nuevoNodo->linea, instruccionCpp, MAX_LINEA - 1);
+    nuevoNodo->linea[MAX_LINEA - 1] = '\0';
+    nuevoNodo->siguiente = cabeza;  // Insertar al inicio
+    cabeza = nuevoNodo;
+}
