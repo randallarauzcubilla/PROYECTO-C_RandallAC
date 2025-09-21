@@ -1,4 +1,5 @@
-#include "pch.h"
+﻿#include "pch.h"
+#include <iostream>
 #include "DiccionarioManual.h"
 #include <cstring>
 
@@ -45,12 +46,14 @@ const char* buscarTraduccion(const char* palabra) {
         NodoPalabra* nodo = actual->listaPalabras;
         while (nodo != nullptr) {
             if (strcmp(nodo->palabraNatural, palabra) == 0) {
+                std::cout << "Traducción encontrada: " << actual->traduccionCpp << std::endl;
                 return actual->traduccionCpp;
             }
             nodo = nodo->siguiente;
         }
         actual = actual->siguiente;
     }
+    std::cerr << "Palabra no encontrada en diccionario: " << palabra << std::endl;
     return nullptr;
 }
 
@@ -71,8 +74,9 @@ void liberarDiccionario() {
 }
 
 void inicializarDiccionario() {
+    liberarDiccionario();
     // Operaciones
-    const char* opSuma[] = { "sumar", "a�adir", "agregar" };
+    const char* opSuma[] = { "sumar", "añadir", "agregar" };
     agregarEntrada("+", opSuma, 3);
 
     const char* opResta[] = { "restar", "quitar" };
@@ -91,17 +95,35 @@ void inicializarDiccionario() {
     const char* tipoFloat[] = { "decimal", "numero decimal" };
     agregarEntrada("float", tipoFloat, 2);
 
-    const char* tipoChar[] = { "caracter", "letra", "texto", "cadena de texto" };
-    agregarEntrada("char", tipoChar, 4);
+    const char* tipoChar[] = { "caracter", "texto", "cadena de texto" };
+    agregarEntrada("char", tipoChar, 3);
 
-    const char* tipoBool[] = { "booleano", "boolean", "bool", "verdadero", "falso" };
-    agregarEntrada("bool", tipoBool, 5);
+    const char* tipoBool[] = { "booleana", "boolean", "bool" };
+    agregarEntrada("bool", tipoBool, 3);
 
-    // Declaraci�n
+    const char* valorTrue[] = { "verdadero" };
+    agregarEntrada("true", valorTrue, 1);
+
+    const char* valorFalse[] = { "falso" };
+    agregarEntrada("false", valorFalse, 1);
+
+    const char* tipoListaInt[] = { "lista de números", "lista de enteros", "arreglo de números", "arreglo de enteros" };
+    agregarEntrada("int[]", tipoListaInt, 4);
+
+    const char* tipoListaChar[] = { "lista de letras", "lista de caracteres", "arreglo de letras", "arreglo de caracteres" };
+    agregarEntrada("char[]", tipoListaChar, 4);
+
+    const char* tipoListaBool[] = { "lista booleana", "arreglo booleano" };
+    agregarEntrada("bool[]", tipoListaBool, 2);
+
+    const char* tipoListaFloat[] = { "lista decimal", "arreglo decimal", "lista de decimales" };
+    agregarEntrada("float[]", tipoListaFloat, 3);
+
+    // Declaración
     const char* declarar[] = { "crear", "declarar", "definir variable", "crear una variable" };
     agregarEntrada("crear", declarar, 4);
 
-    // Asignaci�n
+    // Asignación
     const char* asignar[] = { "asignar", "establecer", "igualar" };
     agregarEntrada("=", asignar, 3);
 
@@ -141,30 +163,56 @@ void inicializarDiccionario() {
     const char* menorIgual[] = { "menor o igual que" };
     agregarEntrada("<=", menorIgual, 1);
 
-    const char* logicoY[] = { "y", "adem�s" };
+    const char* logicoY[] = { "y", "además" };
     agregarEntrada("&&", logicoY, 2);
 
     const char* logicoO[] = { "o", "o bien" };
     agregarEntrada("||", logicoO, 2);
 
+    const char* simboloMayor[] = { ">" };
+    agregarEntrada(">", simboloMayor, 1);
+
+    const char* simboloMenor[] = { "<" };
+    agregarEntrada("<", simboloMenor, 1);
+
+    const char* simboloIgual[] = { "==" };
+    agregarEntrada("==", simboloIgual, 1);
+
+    const char* simboloMayorIgual[] = { ">=" };
+    agregarEntrada(">=", simboloMayorIgual, 1);
+
+    const char* simboloMenorIgual[] = { "<=" };
+    agregarEntrada("<=", simboloMenorIgual, 1);
+
+    const char* simboloDistinto[] = { "!=" };
+    agregarEntrada("!=", simboloDistinto, 1);
+
     // Bucles
     const char* bucleMientras[] = { "mientras", "mientras que" };
     agregarEntrada("while", bucleMientras, 2);
 
-    const char* bucleRepetir[] = { "repetir", "repetir hasta" };
+    const char* bucleRepetir[] = { "repetir", "repetir hasta que" };
     agregarEntrada("do { } while(...)", bucleRepetir, 2);
 
     const char* buclePara[] = { "para", "repetir n veces" };
     agregarEntrada("for", buclePara, 2);
 
-    // Funciones
-    const char* funcionDefinir[] = { "definir funcion", "crear funcion" };
-    agregarEntrada("void nombreFuncion() {", funcionDefinir, 2);
+    const char* menorQue[] = { "menor", "menor que" };
+    agregarEntrada("<", menorQue, 2);
 
-    const char* funcionLlamar[] = { "llamar funcion", "ejecutar funcion" };
-    agregarEntrada("nombreFuncion();", funcionLlamar, 2);
+    const char* mayorQue[] = { "mayor", "mayor que" };
+    agregarEntrada(">", mayorQue, 2);
 
-    // Finalizaci�n
+    const char* igualQue[] = { "igual", "igual que" };
+    agregarEntrada("==", igualQue, 2);
+
+    const char* distintoDe[] = { "distinto", "distinto de" };
+    agregarEntrada("!=", distintoDe, 2);
+
+    const char* verboCondicion[] = { "sea", "es", "fue", "esté" };
+    agregarEntrada("", verboCondicion, 4);  // reemplazo vacío
+
+    // Finalización
     const char* finalizar[] = { "terminar programa", "finalizar", "cerrar programa", "fin" };
     agregarEntrada("return 0; }", finalizar, 4);
 
