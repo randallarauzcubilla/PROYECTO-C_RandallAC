@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "InterfazGrafica.h"
-
+#define _CRT_SECURE_NO_WARNINGS
 using namespace System;
 using namespace System::Windows::Forms;
 
