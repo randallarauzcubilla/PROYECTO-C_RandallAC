@@ -1,6 +1,7 @@
-#pragma once
+ï»¿#pragma once
 #define _CRT_SECURE_NO_WARNINGS
 #include "GeneradorCodigo.h"
+#include "DiccionarioManual.h"
 #include "ParserNatural.h"
 #include <msclr/marshal_cppstd.h>
 #include <iostream>
@@ -22,14 +23,15 @@ namespace CRandallAC {
 		InterfazGrafica(void)
 		{
 			InitializeComponent();
+			inicializarDiccionario();
 			//
-			//TODO: agregar código de constructor aquí
+			//TODO: agregar cÃ³digo de constructor aquÃ­
 			//
 		}
 
 	protected:
 		/// <summary>
-		/// Limpiar los recursos que se estén usando.
+		/// Limpiar los recursos que se estÃ©n usando.
 		/// </summary>
 		~InterfazGrafica()
 		{
@@ -59,7 +61,7 @@ namespace CRandallAC {
 
 	private:
 		/// <summary>
-		/// Variable del diseñador necesaria.
+		/// Variable del diseÃ±ador necesaria.
 		/// </summary>
 		System::ComponentModel::Container^ components;
 	private: System::Windows::Forms::Button^ btnSalir;
@@ -68,8 +70,8 @@ namespace CRandallAC {
 		   String^ rutaArchivo = nullptr;
 #pragma region Windows Form Designer generated code
 		   /// <summary>
-		   /// Método necesario para admitir el Diseñador. No se puede modificar
-		   /// el contenido de este método con el editor de código.
+		   /// MÃ©todo necesario para admitir el DiseÃ±ador. No se puede modificar
+		   /// el contenido de este mÃ©todo con el editor de cÃ³digo.
 		   /// </summary>
 		   void InitializeComponent(void)
 		   {
@@ -198,6 +200,7 @@ namespace CRandallAC {
 		   }
 #pragma endregion
 	private: System::Void InterfazGrafica_Load(System::Object^ sender, System::EventArgs^ e) {
+		Console::WriteLine("Formulario cargado.");
 	}
 
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -252,23 +255,33 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 			char lineaC[256];
 			strcpy(lineaC, stdLinea.c_str());
 
-			char salidaC[256];
+			char salidaC[256] = { 0 };  // â† inicializa todo en cero
+			strncpy_s(lineaC, sizeof(lineaC), stdLinea.c_str(), _TRUNCATE);
+
 			parser.parseLinea(lineaC, salidaC);
+			Console::WriteLine("Linea " + numeroLinea + ": " + gcnew String(salidaC));
 
 			if (strstr(salidaC, "// Error:") != nullptr) {
-				Console::WriteLine("// Error en línea " + numeroLinea + ": " + gcnew String(linea));
+				Console::WriteLine("// Error en linea " + numeroLinea + ": " + gcnew String(linea));
 				Console::WriteLine(gcnew String(salidaC));
-				Console::WriteLine("// Se detecto un error.  Corrige el archivo antes de continuar.");
+				Console::WriteLine("// Se detecto un error. Corrige el archivo antes de continuar.");
 				return;
 			}
-			generadorGlobal->agregar(salidaC, true);  // Agregar con indentación dentro del main
-			numeroLinea++;
+
+			// Detectar si es una funciÃ³n definida fuera del main
+			if (strncmp(salidaC, "void ", 5) == 0) {
+				generadorGlobal->agregarFueraMain(salidaC);
+			}
+			else {
+				generadorGlobal->agregar(salidaC, true); // Agregar con indentaciÃ³n dentro del main
+				numeroLinea++;
+			}
 		}
 
 		generadorGlobal->finalizar();                      // Agrega return 0; y cierre de llave
 		generadorGlobal->imprimirCodigo();                 // Muestra el programa completo en consola
 		generadorGlobal->generarArchivo("salida.txt");     // Exporta el archivo final
-		Console::WriteLine("// Proceso completado. Código listo para exportar.");
+		Console::WriteLine("// Proceso completado. Codigo listo para exportar.");
 	}
 
 	private: System::Void richTextBox2_TextChanged(System::Object^ sender, System::EventArgs^ e) {
