@@ -20,4 +20,5 @@ public:
     void imprimirCodigo();  // útil para debug
     void generarArchivo(const char* nombreArchivo);
     void limpiar();
+    void agregarFueraMain(const char* instruccionCpp);
 };
