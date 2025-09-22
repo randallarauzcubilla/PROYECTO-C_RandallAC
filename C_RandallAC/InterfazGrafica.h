@@ -203,6 +203,18 @@ namespace CRandallAC {
 		Console::WriteLine("Formulario cargado.");
 	}
 
+		   bool esDefinicionDeFuncion(const char* linea) {
+			   return (
+				   (strstr(linea, "void ") != nullptr ||
+					   strstr(linea, "int ") != nullptr ||
+					   strstr(linea, "float ") != nullptr ||
+					   strstr(linea, "bool ") != nullptr ||
+					   strstr(linea, "char ") != nullptr)
+				   && strstr(linea, "(") != nullptr
+				   && strstr(linea, ") {") != nullptr
+				   );
+		   }
+
 private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 	OpenFileDialog^ dialogo = gcnew OpenFileDialog();
 	dialogo->Filter = "Archivos de texto (*.txt)|*.txt";
@@ -225,13 +237,13 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 
 	private: System::Void btnEjecutar_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (rutaArchivo == nullptr) {
-			Console::WriteLine("Primero carga un archivo con el boton 'Cargar'.");
+			Console::WriteLine("Primero carga un archivo con el botón 'Cargar'.");
 			return;
 		}
 
 		String^ contenido = System::IO::File::ReadAllText(rutaArchivo);
 		if (String::IsNullOrWhiteSpace(contenido)) {
-			Console::WriteLine("El archivo esta vacio.");
+			Console::WriteLine("El archivo está vacío.");
 			return;
 		}
 
@@ -249,39 +261,35 @@ private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e
 		ParserNatural parser;
 		generadorGlobal = new GeneradorCodigo();
 		int numeroLinea = 1;
+
 		for each (String ^ linea in lineas) {
 			msclr::interop::marshal_context context;
 			std::string stdLinea = context.marshal_as<std::string>(linea);
 			char lineaC[256];
 			strcpy(lineaC, stdLinea.c_str());
 
-			char salidaC[256] = { 0 };  // ← inicializa todo en cero
+			char salidaC[256] = { 0 };
 			strncpy_s(lineaC, sizeof(lineaC), stdLinea.c_str(), _TRUNCATE);
 
-			parser.parseLinea(lineaC, salidaC);
-			Console::WriteLine("Linea " + numeroLinea + ": " + gcnew String(salidaC));
+			parser.parseLinea(lineaC, salidaC, generadorGlobal);
 
 			if (strstr(salidaC, "// Error:") != nullptr) {
-				Console::WriteLine("// Error en linea " + numeroLinea + ": " + gcnew String(linea));
+				Console::WriteLine("// Error en línea " + numeroLinea + ": " + gcnew String(linea));
 				Console::WriteLine(gcnew String(salidaC));
-				Console::WriteLine("// Se detecto un error. Corrige el archivo antes de continuar.");
+				Console::WriteLine("// Se detectó un error. Corrige el archivo antes de continuar.");
 				return;
 			}
 
-			// Detectar si es una función definida fuera del main
-			if (strncmp(salidaC, "void ", 5) == 0) {
-				generadorGlobal->agregarFueraMain(salidaC);
+			if (!esDefinicionDeFuncion(salidaC)) {
+				generadorGlobal->agregar(salidaC, true);
 			}
-			else {
-				generadorGlobal->agregar(salidaC, true); // Agregar con indentación dentro del main
-				numeroLinea++;
-			}
+			numeroLinea++;
 		}
 
-		generadorGlobal->finalizar();                      // Agrega return 0; y cierre de llave
-		generadorGlobal->imprimirCodigo();                 // Muestra el programa completo en consola
-		generadorGlobal->generarArchivo("salida.txt");     // Exporta el archivo final
-		Console::WriteLine("// Proceso completado. Codigo listo para exportar.");
+		generadorGlobal->finalizar();                  // Agrega return 0; y cierre de llave
+		generadorGlobal->imprimirCodigo();             // Muestra el programa completo en consola
+		generadorGlobal->generarArchivo("salida.txt"); // Exporta el archivo final
+		Console::WriteLine("// Proceso completado. Código listo para exportar.");
 	}
 
 	private: System::Void richTextBox2_TextChanged(System::Object^ sender, System::EventArgs^ e) {
