@@ -1,14 +1,14 @@
 ﻿#pragma once
-
+#define _CRT_SECURE_NO_WARNINGS
 #define MAX_LINEA 512
 #include "DiccionarioManual.h"
-
+#include "GeneradorCodigo.h"
 class ParserNatural {
 public:
     ParserNatural();
 
     // Traduce línea natural a C++
-    void parseLinea(const char* lineaEntrada, char* lineaSalida);
+    void parseLinea(const char* lineaEntrada, char* lineaSalida, GeneradorCodigo* generador);
 
 private:
     bool contienePalabra(const char* linea, const char* palabra);
