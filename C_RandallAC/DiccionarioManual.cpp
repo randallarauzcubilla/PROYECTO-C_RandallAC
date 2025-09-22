@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include "DiccionarioManual.h"
 #include <cstring>
@@ -46,7 +47,7 @@ const char* buscarTraduccion(const char* palabra) {
         NodoPalabra* nodo = actual->listaPalabras;
         while (nodo != nullptr) {
             if (strcmp(nodo->palabraNatural, palabra) == 0) {
-                std::cout << "Traducción encontrada: " << actual->traduccionCpp << std::endl;
+                //std::cout << "Traducción encontrada: " << actual->traduccionCpp << std::endl;
                 return actual->traduccionCpp;
             }
             nodo = nodo->siguiente;
@@ -119,9 +120,8 @@ void inicializarDiccionario() {
     const char* tipoListaFloat[] = { "lista decimal", "arreglo decimal", "lista de decimales" };
     agregarEntrada("float[]", tipoListaFloat, 3);
 
-    // Declaración
-    const char* declarar[] = { "crear", "declarar", "definir variable", "crear una variable" };
-    agregarEntrada("crear", declarar, 4);
+    const char* declarar[] = { "declarar", "definir variable", "crear una variable" };
+    agregarEntrada("DECLARAR_VAR", declarar, 3);
 
     // Asignación
     const char* asignar[] = { "asignar", "establecer", "igualar" };
@@ -209,10 +209,36 @@ void inicializarDiccionario() {
     const char* distintoDe[] = { "distinto", "distinto de" };
     agregarEntrada("!=", distintoDe, 2);
 
-    const char* verboCondicion[] = { "sea", "es", "fue", "esté" };
+    const char* verboCondicion[] = { "sea", "es", "fue", "este" };
     agregarEntrada("", verboCondicion, 4);  // reemplazo vacío
 
-    // Finalización
+    const char* tipoFuncionInt[] = { "función entera", "función de tipo entero" };
+    agregarEntrada("int", tipoFuncionInt, 2);
+
+    const char* tipoFuncionFloat[] = { "función decimal", "función de tipo decimal" };
+    agregarEntrada("float", tipoFuncionFloat, 2);
+
+    const char* tipoFuncionBool[] = { "función booleana", "función de tipo booleana" };
+    agregarEntrada("bool", tipoFuncionBool, 2);
+
+    const char* tipoFuncionChar[] = { "función de tipo caracter", "función de tipo char", "función que retorna caracter" };
+    agregarEntrada("char", tipoFuncionChar, 3);
+
+    const char* tipoFuncionVoid[] = { "función vacía", "función sin retorno" };
+    agregarEntrada("void", tipoFuncionVoid, 2);
+
+    const char* crearFuncion[] = { "crear una función", "definir una función", "crear función" };
+    agregarEntrada("FUNCION_INICIO", crearFuncion, 3);
+
+    const char* recibe[] = { "reciba", "con", "que tome", "que acepte" };
+    agregarEntrada("FUNCION_PARAM", recibe, 4);
+
+    const char* retorna[] = { "retorne", "devuelva", "regrese" };
+    agregarEntrada("return", retorna, 3);
+
+    const char* imprime[] = { "imprima", "muestre", "escriba" };
+    agregarEntrada("cout <<", imprime, 3);
+
     const char* finalizar[] = { "terminar programa", "finalizar", "cerrar programa", "fin" };
     agregarEntrada("return 0; }", finalizar, 4);
 
